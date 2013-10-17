@@ -26,7 +26,10 @@ function runHhvm(token, onCompiled) {
         exec(cmd, function (error, stdout, stderr) {
             if (error) {
                 console.log("Error: " + error);
+                return;
             }
+            
+            util.print('Program text: ' + stdout);
             
             console.log("JSON file written to " + outputFileName);
             fs.readFile(outputFileName, 'utf8', function (error, data) {
