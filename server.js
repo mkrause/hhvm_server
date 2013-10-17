@@ -22,7 +22,7 @@ function runHhvm(token, onCompiled) {
         util.print('Compiling with HHVM: ' + stdout);
         
         var outputFileName = hhvmDir + "/hhbc.json";
-        var cmd = "../bin/run_json_export " + hhvmDir + "/hhvm.hhbci " + outputFileName;
+        var cmd = "../bin/run_json_export " + hhvmDir + "/hhvm.hhbc " + outputFileName;
         exec(cmd, function (error, stdout, stderr) {
             if (error) {
                 console.log("Error: " + error);
@@ -72,8 +72,8 @@ http.createServer(function (req, res) {
     
     compile(script, function(program) {
         res.writeHead(200, {'Content-Type': 'application/json'});
-        res.end(JSON.stringify(program));
-
+        res.end(JSON.stringify(JSON.parse(program)));
+        
         console.log('Done!\n\n');
     });
     
