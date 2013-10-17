@@ -72,7 +72,7 @@ http.createServer(function (req, res) {
     
     compile(script, function(program) {
         res.writeHead(200, {'Content-Type': 'application/json'});
-        res.end(JSON.stringify(JSON.parse(program)));
+        res.end(JSON.stringify(JSON.parse(program), null, 4));
         
         console.log('Done!\n\n');
     });
