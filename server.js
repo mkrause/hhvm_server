@@ -71,8 +71,29 @@ function compile(script, onCompiled) {
 }
 
 http.createServer(function (req, res) {
-    var queryParams = url.parse(req.url, true).query;
-    var script = queryParams.script;
+    var body = "";
+    var respond = function(script) {
+        if (script === undefined) {
+            res.writeHead(405, {
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'x-requested-with'
+            });
+            res.end();
+            return;
+        }
+
+        compile(script, function(program) {
+            res.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'x-requested-with'
+            });
+            res.end(JSON.stringify(JSON.parse(program), null, 4));
+
+            console.log('Done!\n\n');
+        });
+    };
 
     if (req.method.toUpperCase() === "OPTIONS") {
         // Echo back the Origin (calling domain) so that the
@@ -89,23 +110,25 @@ http.createServer(function (req, res) {
                 "content-length": 0
             }
         );
- 
+
         // End the response - we're not sending back any content.
         response.end();
         return;
-    }
-    
-    compile(script, function(program) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'x-requested-with'
+    } else if (req.method.toUpperCase() === "POST") {
+        req.on('data', function (data) {
+            body += data;
         });
-        res.end(JSON.stringify(JSON.parse(program), null, 4));
-        
-        console.log('Done!\n\n');
-    });
-    
+        req.on('end', function () {
+            var post = qs.parse(body);
+            var script = post.script;
+            respond(script);
+        });
+    } else {
+        var queryParams = url.parse(req.url, true).query;
+        var script = queryParams.script;
+        respond(script);
+    }
+
 }).listen(80);
 
 console.log('Server running\n');
