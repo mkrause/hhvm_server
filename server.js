@@ -32,6 +32,7 @@ function runHhvm(token, onCompiled) {
             util.print('Program text: ' + stdout);
             
             console.log("JSON file written to " + outputFileName);
+
             fs.readFile(outputFileName, 'utf8', function (error, data) {
                 if (error) {
                     console.log(error);
@@ -46,7 +47,7 @@ function runHhvm(token, onCompiled) {
                     }
                 }
                 rm(scriptFileName, rmError);
-                rm(hhvmDir, rmError);
+                //rm(hhvmDir, rmError);
                 
                 onCompiled(data);
             });
@@ -72,9 +73,34 @@ function compile(script, onCompiled) {
 http.createServer(function (req, res) {
     var queryParams = url.parse(req.url, true).query;
     var script = queryParams.script;
+
+    if (req.method.toUpperCase() === "OPTIONS") {
+        // Echo back the Origin (calling domain) so that the
+        // client is granted access to make subsequent requests
+        // to the API.
+        res.writeHead(
+            "204",
+            "No Content",
+            {
+                "access-control-allow-origin": "*",
+                "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "access-control-allow-headers": "content-type, accept",
+                "access-control-max-age": 10, // Seconds.
+                "content-length": 0
+            }
+        );
+ 
+        // End the response - we're not sending back any content.
+        response.end();
+        return;
+    }
     
     compile(script, function(program) {
-        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'x-requested-with'
+        });
         res.end(JSON.stringify(JSON.parse(program), null, 4));
         
         console.log('Done!\n\n');
