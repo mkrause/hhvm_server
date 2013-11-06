@@ -47,7 +47,7 @@ function runHhvm(token, onCompiled) {
                     }
                 }
                 rm(scriptFileName, rmError);
-                //rm(hhvmDir, rmError);
+                rm(hhvmDir, rmError);
                 
                 onCompiled(data);
             });
@@ -112,7 +112,7 @@ http.createServer(function (req, res) {
         );
 
         // End the response - we're not sending back any content.
-        response.end();
+        res.end();
         return;
     } else if (req.method.toUpperCase() === "POST") {
         req.on('data', function (data) {
